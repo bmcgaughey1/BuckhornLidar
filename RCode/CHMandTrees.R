@@ -16,11 +16,10 @@ library(fusionwrapr)
 # set up some things for FUSION commands
 outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
 
-# *****************************************************************************
-# *****************************************************************************
-# build CSM and CHM, do segmentation and compute metrics for Tree Approximate Objects (TAOs)
-# *****************************************************************************
-# *****************************************************************************
+# Do FUSION processing ----------------------------------------------------
+
+# build CSM and CHM, do segmentation
+
 # header things for batch file
 batchFile <- paste0(outputFolder, "DoCHMandTrees.bat")
 
@@ -75,14 +74,32 @@ CanopyModel(paste0(outputFolder, "CHM/CHM.dtm")
             , class = "~7,18"
 )
 
+# create an unsmoothe3d CHM. This will be used to assign elevations to trees
+# after segmentation. Smoothing reduces the height of the CHM slightly but smoothing
+# is necessary to prevent oversegmentation.
+CanopyModel(paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm")
+            , 0.5
+            , "M"
+            , "M"
+            , 1
+            , 10
+            , 2
+            , 2
+            , paste0(lidarDataFolder, "*.laz")
+            , ground = FUSION_DTMFile
+            , peaks = FALSE
+            , class = "~7,18"
+)
+
 # run segmentation to produce normalized TAO clips
 # omit the ground points (class 2)
+# remove the points = ... line to just produce highpoints and crown polygons
 TreeSeg(paste0(outputFolder, "CHM/CHM.dtm")
         , 2
         , paste0(outputFolder, "Trees/trees_normalized.csv")
         , shape = TRUE
         , ptheight = TRUE
-        #, points = paste0(lidarDataFolder, "*.laz")
+        , points = paste0(lidarDataFolder, "*.laz")
         , class = "~2"
         , clipfolder = paste0(outputFolder, "Trees/TAOpts_normalized")
         , ground = FUSION_DTMFile
@@ -90,17 +107,81 @@ TreeSeg(paste0(outputFolder, "CHM/CHM.dtm")
         , projection = prjFile
 )
 
+# compute limited set of metrics for both sets of TAOs
+# remove highpoint = TRUE and uncomment minht = and above = lines to produce full set of metrics
+# use rid=TRUE to parse tree number from end of point file name
+CloudMetrics(paste0(outputFolder, "/Trees/TAOpts_normalized/*.lda")
+             , paste0(outputFolder, "/TAO_normalized_metrics.csv")
+             , new = TRUE
+             , highpoint = TRUE
+             #, minht = 2.0
+             #, above = 2.0
+             , rid = TRUE
+)
+
 useLogFile("")
 
 # run the batch file
 runCommandFile()
 
-# convert CSM and CHM to TIF format
+# Sample heights for highpoints from unsmoothed CHM and tree clips ------------
+
+# Heights for trees from the segmentation are slightly reduced due to smoothing
+# the CHM. Use the XY location of the high point and an unsmoothed CHM to assign
+# more accurate heights.
+#
+# An alternative approach that would produce the most accurate heights is to clip 
+# points for each tree and get the height for the highest lidar point for each tree.
+# This process is slow and requires more manipulation of the point clips.
+#
+# read shapefile for highpoints
+highPoints <- vect(paste0(outputFolder, "Trees/trees_normalized_HighPoints.shp"))
+
+# build data frame for ID, X, Y and "fix" the column labels
+df <- data.frame(highPoints$BasinID, highPoints$GridHighX, highPoints$GridHighY)
+colnames(df) <- c("BasinID", "X", "Y")
+
+# get surface values for highpoint XY locations
+dfns <- GetSurfaceValues(df, "X", "Y", "UnsmthHt", paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"))
+
+# read point cloud metrics
+metrics <- read.csv(paste0(outputFolder, "/TAO_normalized_metrics.csv"), stringsAsFactors = FALSE)
+
+# join point cloud highest point height to segmented trees. Join is needed because
+# we typically don't get points for every tree object
+dfns <- merge(dfns, metrics, by.x = "BasinID", by.y = "Identifier", all.x = TRUE)
+
+# add UnsmthHt to shapefile attributes
+# add point location and height to shapefile
+highPoints$UnsmthHt <- dfns$UnsmthHt
+highPoints$HighPtX <- dfns$High.point.X
+highPoints$HighPtY <- dfns$High.point.Y
+highPoints$HighPtHt <- dfns$High.point.elevation
+
+# write new shapefile for high points
+writeVector(highPoints, paste0(outputFolder, "Trees/trees.shp"), overwrite = TRUE)
+
+# read shapefile for crown perimeters
+crowns <- vect(paste0(outputFolder, "Trees/trees_normalized_Polygons.shp"))
+crowns$UnsmthHt <- dfns$UnsmthHt
+crowns$HighPtX <- dfns$High.point.X
+crowns$HighPtY <- dfns$High.point.Y
+crowns$HighPtHt <- dfns$High.point.elevation
+
+# write new shapefile for crown perimeters
+writeVector(highPoints, paste0(outputFolder, "Trees/crowns.shp"), overwrite = TRUE)
+
+# Convert surface files to TIF format -------------------------------------
+
+# convert CSM and CHMs to TIF format
 csm <- readDTM(paste0(outputFolder, "CSM/CSM.dtm"), type = "terra", epsg = 26910)
 chm <- readDTM(paste0(outputFolder, "CHM/CHM.dtm"), type = "terra", epsg = 26910)
+chmns <- readDTM(paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"), type = "terra", epsg = 26910)
 
 # options for GDAL TIFF writer
 gdalOptions <- c("TFW=YES", "PHOTOMETRIC=RGB")
 
+# write models to TIF using floating point values
 writeRaster(csm, paste0(outputFolder, "CSM/CSM.tif"), gdal = gdalOptions, datatype = "FLT4S", overwrite = TRUE)
 writeRaster(chm, paste0(outputFolder, "CHM/CHM.tif"), gdal = gdalOptions, datatype = "FLT4S", overwrite = TRUE)
+writeRaster(chmns, paste0(outputFolder, "CHM/CHM_NOT_smoothed.tif"), gdal = gdalOptions, datatype = "FLT4S", overwrite = TRUE)
