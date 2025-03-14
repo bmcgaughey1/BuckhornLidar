@@ -16,113 +16,118 @@ library(fusionwrapr)
 # set up some things for FUSION commands
 outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
 
-# Do FUSION processing ----------------------------------------------------
+# flag to control building of CSM, CHM, and tree objects
+buildFUSIONProducts <- FALSE
 
-# build CSM and CHM, do segmentation
-
-# header things for batch file
-batchFile <- paste0(outputFolder, "DoCHMandTrees.bat")
-
-# set default behavior for commands...basically telling the fusionwrapr package to create a
-# batch file instead of running the commands directly.
-setGlobalCommandOptions(runCmd = FALSE, saveCmd = TRUE, echoCmd = FALSE, cmdFile = batchFile)
-
-# make sure we have the folder for the batch file
-verifyFolder(dirname(batchFile))
-
-# write comment...omit the blank line before the comment
-addToCommandFile(paste0("Processing for: ", dataFolder), addLine = FALSE, cmdClear = TRUE)
-
-# set the log file and clear it
-useLogFile(paste0(outputFolder, "Processing.log"), logClear = TRUE)
-
-# add comment
-addToCommandFile("Start of processing commands")
-
-# create ground model...already have these for all areas in ground folder
-# however, the naming for the models isn't consistent
-
-# create CSM and CHM
-# Resolution and smoothing with the canopy surfaces have a major effect on the segmentation
-# behavior.
-CanopyModel(paste0(outputFolder, "CSM/CSM.dtm")
-            , 0.5
-            , "M"
-            , "M"
-            , 1
-            , 10
-            , 2
-            , 2
-            , paste0(lidarDataFolder, "*.laz")
-            , smooth = 3
-            , peaks = FALSE
-            , class = "~7,18"
-)
-
-CanopyModel(paste0(outputFolder, "CHM/CHM.dtm")
-            , 0.5
-            , "M"
-            , "M"
-            , 1
-            , 10
-            , 2
-            , 2
-            , paste0(lidarDataFolder, "*.laz")
-            , ground = FUSION_DTMFile
-            , smooth = 3
-            , peaks = FALSE
-            , class = "~7,18"
-)
-
-# create an unsmoothe3d CHM. This will be used to assign elevations to trees
-# after segmentation. Smoothing reduces the height of the CHM slightly but smoothing
-# is necessary to prevent oversegmentation.
-CanopyModel(paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm")
-            , 0.5
-            , "M"
-            , "M"
-            , 1
-            , 10
-            , 2
-            , 2
-            , paste0(lidarDataFolder, "*.laz")
-            , ground = FUSION_DTMFile
-            , peaks = FALSE
-            , class = "~7,18"
-)
-
-# run segmentation to produce normalized TAO clips
-# omit the ground points (class 2)
-# remove the points = ... line to just produce highpoints and crown polygons
-TreeSeg(paste0(outputFolder, "CHM/CHM.dtm")
-        , 2
-        , paste0(outputFolder, "Trees/trees_normalized.csv")
-        , shape = TRUE
-        , ptheight = TRUE
-        , points = paste0(lidarDataFolder, "*.laz")
-        , class = "~2"
-        , clipfolder = paste0(outputFolder, "Trees/TAOpts_normalized")
-        , ground = FUSION_DTMFile
-        , comment = "Create normalized TAO point clips"
-        , projection = prjFile
-)
-
-# compute limited set of metrics for both sets of TAOs
-# remove highpoint = TRUE and uncomment minht = and above = lines to produce full set of metrics
-# use rid=TRUE to parse tree number from end of point file name
-CloudMetrics(paste0(outputFolder, "/Trees/TAOpts_normalized/*.lda")
-             , paste0(outputFolder, "/TAO_normalized_metrics.csv")
-             , new = TRUE
-             , highpoint = TRUE
-             #, minht = 2.0
-             #, above = 2.0
-             , rid = TRUE
-)
-
-useLogFile("")
-
-# run the batch file
-runCommandFile()
+if (buildFUSIONProducts) {
+  # Do FUSION processing ----------------------------------------------------
+  
+  # build CSM and CHM, do segmentation
+  
+  # header things for batch file
+  batchFile <- paste0(outputFolder, "DoCHMandTrees.bat")
+  
+  # set default behavior for commands...basically telling the fusionwrapr package to create a
+  # batch file instead of running the commands directly.
+  setGlobalCommandOptions(runCmd = FALSE, saveCmd = TRUE, echoCmd = FALSE, cmdFile = batchFile)
+  
+  # make sure we have the folder for the batch file
+  verifyFolder(dirname(batchFile))
+  
+  # write comment...omit the blank line before the comment
+  addToCommandFile(paste0("Processing for: ", dataFolder), addLine = FALSE, cmdClear = TRUE)
+  
+  # set the log file and clear it
+  useLogFile(paste0(outputFolder, "Processing.log"), logClear = TRUE)
+  
+  # add comment
+  addToCommandFile("Start of processing commands")
+  
+  # create ground model...already have these for all areas in ground folder
+  # however, the naming for the models isn't consistent
+  
+  # create CSM and CHM
+  # Resolution and smoothing with the canopy surfaces have a major effect on the segmentation
+  # behavior.
+  CanopyModel(paste0(outputFolder, "CSM/CSM.dtm")
+              , 0.5
+              , "M"
+              , "M"
+              , 1
+              , 10
+              , 2
+              , 2
+              , paste0(lidarDataFolder, "*.laz")
+              , smooth = 3
+              , peaks = FALSE
+              , class = "~7,18"
+  )
+  
+  CanopyModel(paste0(outputFolder, "CHM/CHM.dtm")
+              , 0.5
+              , "M"
+              , "M"
+              , 1
+              , 10
+              , 2
+              , 2
+              , paste0(lidarDataFolder, "*.laz")
+              , ground = FUSION_DTMFile
+              , smooth = 3
+              , peaks = FALSE
+              , class = "~7,18"
+  )
+  
+  # create an unsmoothe3d CHM. This will be used to assign elevations to trees
+  # after segmentation. Smoothing reduces the height of the CHM slightly but smoothing
+  # is necessary to prevent oversegmentation.
+  CanopyModel(paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm")
+              , 0.5
+              , "M"
+              , "M"
+              , 1
+              , 10
+              , 2
+              , 2
+              , paste0(lidarDataFolder, "*.laz")
+              , ground = FUSION_DTMFile
+              , peaks = FALSE
+              , class = "~7,18"
+  )
+  
+  # run segmentation to produce normalized TAO clips
+  # omit the ground points (class 2)
+  # remove the points = ... line to just produce highpoints and crown polygons
+  TreeSeg(paste0(outputFolder, "CHM/CHM.dtm")
+          , 2
+          , paste0(outputFolder, "Trees/trees_normalized.csv")
+          , shape = TRUE
+          , ptheight = TRUE
+          , points = paste0(lidarDataFolder, "*.laz")
+          , class = "~2"
+          , clipfolder = paste0(outputFolder, "Trees/TAOpts_normalized")
+          , ground = FUSION_DTMFile
+          , comment = "Create normalized TAO point clips"
+          , projection = prjFile
+  )
+  
+  # compute limited set of metrics for both sets of TAOs
+  # remove highpoint = TRUE and uncomment minht = and above = lines to produce full set of metrics
+  # use rid=TRUE to parse tree number from end of point file name
+  CloudMetrics(paste0(outputFolder, "/Trees/TAOpts_normalized/*.lda")
+               , paste0(outputFolder, "/TAO_normalized_metrics.csv")
+               , new = TRUE
+               , highpoint = TRUE
+               #, minht = 2.0
+               #, above = 2.0
+               , rid = TRUE
+  )
+  
+  useLogFile("")
+  
+  # run the batch file
+  runCommandFile()
+}
 
 # Sample heights for highpoints from unsmoothed CHM and tree clips ------------
 
@@ -169,7 +174,7 @@ crowns$HighPtY <- dfns$High.point.Y
 crowns$HighPtHt <- dfns$High.point.elevation
 
 # write new shapefile for crown perimeters
-writeVector(highPoints, paste0(outputFolder, "Trees/crowns.shp"), overwrite = TRUE)
+writeVector(crowns, paste0(outputFolder, "Trees/crowns.shp"), overwrite = TRUE)
 
 # Convert surface files to TIF format -------------------------------------
 

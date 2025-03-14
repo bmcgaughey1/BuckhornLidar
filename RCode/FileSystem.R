@@ -37,5 +37,8 @@ bandNames <- c(
 DTMFile <- paste0(lidarDataFolder, "Buckhorn2_DTM.tif")
 FUSION_DTMFile <- paste0(dataFolder, "ground/buckhorn2.dtm")
 
+convexHullFile <- paste0(dataFolder, "SSMT_ConvexHull.gpkg")
+stemPlotFile <- paste0(dataFolder, "SSMT_StemPlots.gpkg")
+
 prjFile <- paste0(dataFolder, "UTM10.prj")
 
