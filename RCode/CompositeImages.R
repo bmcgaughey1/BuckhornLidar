@@ -97,15 +97,33 @@ if (bitsPerPixel == 8) lwir <- stretchq(lwir) else lwir <- stretch16(lwir)
 
 # use terra::shift to align imagery with lidar data. amoutn of shift determined by manual
 # measurement in ArcPro for 4 corners of study area. this could be refined!!
+#
+# ****** Turns out the problem causing the apparent misalignment was an incorredt
+#        crs set for the imagery
 dx <- -1.115
 dy <- 0.75
-red <- shift(red, dx = dx, dy = dy)
-green <- shift(green, dx = dx, dy = dy)
-blue <- shift(blue, dx = dx, dy = dy)
-nir <- shift(nir, dx = dx, dy = dy)
-rededge <- shift(rededge, dx = dx, dy = dy)
-panchro <- shift(panchro, dx = dx, dy = dy)
-lwir <- shift(lwir, dx = dx, dy = dy)
+dx <- 0
+dy <- 0
+if (dx != 0 && dy != 0) {
+  red <- shift(red, dx = dx, dy = dy)
+  green <- shift(green, dx = dx, dy = dy)
+  blue <- shift(blue, dx = dx, dy = dy)
+  nir <- shift(nir, dx = dx, dy = dy)
+  rededge <- shift(rededge, dx = dx, dy = dy)
+  panchro <- shift(panchro, dx = dx, dy = dy)
+  lwir <- shift(lwir, dx = dx, dy = dy)
+}
+
+# change crs...imagery was delivered with crs set to WGS84 UTM zone 10. Lidar data
+# are in NAD83 UTM zone 10. In ~1984, these coordinate projection aligned exactly
+# (or very close)
+crs(red) <- crs("EPSG:26910")
+crs(green) <- crs("EPSG:26910")
+crs(blue) <- crs("EPSG:26910")
+crs(nir) <- crs("EPSG:26910")
+crs(rededge) <- crs("EPSG:26910")
+crs(panchro) <- crs("EPSG:26910")
+crs(lwir) <- crs("EPSG:26910")
 
 #Xie, Qiaoyun & Dash, Jadu & Huang, Wenjiang & Peng, Dailiang & Qin, Qiming &
 #Mortimer, Hugh & Casa, Raffaele & Pignatti, Stefano & Laneve, Giovanni &
