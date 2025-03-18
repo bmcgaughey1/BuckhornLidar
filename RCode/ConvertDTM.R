@@ -1,7 +1,7 @@
 # code to convert DTMs from .tif to .dtm format. Uses the fusionwrapr package
 # to convert terra SpatRasters into FUSION (PLANS) .dtm format
 #
-# Data are in UTM zone 10 with XY and elevations in meters (EPSG:26910)
+# Data are in WGS84 UTM zone 10 with XY and elevations in meters (EPSG:32610)
 #
 # Source file names (.tif) are in FileSystem.R
 source("Rcode/FileSystem.R")

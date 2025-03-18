@@ -39,6 +39,7 @@ FUSION_DTMFile <- paste0(dataFolder, "ground/buckhorn2.dtm")
 
 convexHullFile <- paste0(dataFolder, "SSMT_ConvexHull.gpkg")
 stemPlotFile <- paste0(dataFolder, "SSMT_StemPlots.gpkg")
+testFile = paste0(dataFolder, "SSMT_OutPlantLocations.gpkg")
 
-prjFile <- paste0(dataFolder, "UTM10.prj")
+prjFile <- paste0(dataFolder, "WGS84_UTM10.prj")
 

@@ -37,7 +37,7 @@ panchro <- rast(paste0(imageOutputFolder, imageFileBasename, "panchro.tif"))
 e <- ext(panchro)
   
 if (doHillshade) {
-  DTM <- readDTM(FUSION_DTMFile, type = "terra", epsg = 26910)
+  DTM <- readDTM(FUSION_DTMFile, type = "terra", epsg = 32610)
   DTM <- crop(DTM, e)
   
   # do hillshade using multiple angles
@@ -47,7 +47,7 @@ if (doHillshade) {
   hdtm <- shade(slope, aspect, angle = c(45, 45, 45, 80), direction = c(315, 0, 45, 135))
   hdtm <- Reduce(mean, hdtm)
 
-  CHM <- readDTM(paste0(dataFolder, "FUSIONProcessing/CHM/CHM.dtm"), type = "terra", epsg = 26910)
+  CHM <- readDTM(paste0(dataFolder, "FUSIONProcessing/CHM/CHM.dtm"), type = "terra", epsg = 32610)
   CHM <- crop(CHM, e)
   
   # do hillshade using multiple angles

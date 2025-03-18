@@ -21,3 +21,13 @@ source("Rcode/CompositeImages.R")
 
 # map image book
 source("Rcode/PlotBook.R")
+
+# geopackage files from US Davis with stem locations...doesn't line up well with lidar
+# GeospatialData.R only displays these files...no manipulation
+#
+# GPS points from Connie...mainly used to check alignment
+# only need to run once...maybe not at all
+#source("Rcode/GeospatialData.R")
+
+# build stem maps...brute force with hard-coded tree info
+source("Rcode/BlockandPlotDiagrams.R")

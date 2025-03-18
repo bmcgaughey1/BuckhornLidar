@@ -179,9 +179,9 @@ writeVector(crowns, paste0(outputFolder, "Trees/crowns.shp"), overwrite = TRUE)
 # Convert surface files to TIF format -------------------------------------
 
 # convert CSM and CHMs to TIF format
-csm <- readDTM(paste0(outputFolder, "CSM/CSM.dtm"), type = "terra", epsg = 26910)
-chm <- readDTM(paste0(outputFolder, "CHM/CHM.dtm"), type = "terra", epsg = 26910)
-chmns <- readDTM(paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"), type = "terra", epsg = 26910)
+csm <- readDTM(paste0(outputFolder, "CSM/CSM.dtm"), type = "terra", epsg = 32610)
+chm <- readDTM(paste0(outputFolder, "CHM/CHM.dtm"), type = "terra", epsg = 32610)
+chmns <- readDTM(paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"), type = "terra", epsg = 32610)
 
 # options for GDAL TIFF writer
 gdalOptions <- c("TFW=YES", "PHOTOMETRIC=RGB")
