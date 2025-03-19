@@ -163,6 +163,11 @@ highPoints$HighPtX <- dfns$High.point.X
 highPoints$HighPtY <- dfns$High.point.Y
 highPoints$HighPtHt <- dfns$High.point.elevation
 
+# strip off original geometry (grid cell centers) and replace locations with high point XY
+# this won't shift tree locations by much...at most the width of CHM cell (0.5m)
+df <- as.data.frame(highPoints)
+highPoints <- vect(df, geom = c("HighPtX", "HighPtY"), crs = crs(highPoints))
+
 # write new shapefile for high points
 writeVector(highPoints, paste0(outputFolder, "Trees/trees.shp"), overwrite = TRUE)
 
