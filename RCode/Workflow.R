@@ -10,10 +10,16 @@
 # about not being able to open a temporary file. Not sure what is happening. I
 # exited R-Studio, restarted an things ran fine.
 #
+# the GeospatialData.R file has code to read the files from UC Davis and the GPS
+# points from Connie. Not really needed in the data preparation but I did use the 
+# UC Davis stem map to check my entries for tag numbers (although it doesn't have
+# all trees...no dead or cut trees)
+#
 # convert ground model to FUSION format
 source("Rcode/ConvertDTM.R")
 
 # Build CSM, CHM and tree objects
+# check in file for the setting of buildFUSIONProducts...this controls creation of CHMs
 source("Rcode/CHMandTrees.R")
 
 # process image bands
@@ -31,3 +37,14 @@ source("Rcode/PlotBook.R")
 
 # build stem maps...brute force with hard-coded tree info
 source("Rcode/BlockandPlotDiagrams.R")
+
+# refine the alignment of the stem maps
+source("Rcode/RefineAlignment.R")
+
+# adjust UC Davis stem map to match grid
+source("Rcode/AdjustUCDavisMap.R")
+
+# compare tag labels between grid and UC Davis stem map...does not check border tree tags
+# look for Block#Errors.shp files to indicate errors...if not present, no errors detected
+# error message is also printed to console
+source("Rcode/CompareTage.R")

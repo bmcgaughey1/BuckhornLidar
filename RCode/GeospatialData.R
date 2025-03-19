@@ -34,11 +34,13 @@ gps$lon <- -gps$lon
 # drop jammer1
 gps <- gps[gps$Site != "jammer1",]
 
-# pull off lat-lon
+# pull off lat-lon...assume this is EPSG:4326 but don't know for sure
+# Jacob confirmed this should be EPSG:6318
 df <- data.frame(gps$Site, gps$lon, gps$lat)
-v <- vect(df, geom=c("gps.lon", "gps.lat"), crs = "EPSG:4326", keepgeom = TRUE)
+v <- vect(df, geom=c("gps.lon", "gps.lat"), crs = "EPSG:6318", keepgeom = TRUE)
 mapview(v)
 
+# project to WGS84 UTM10
 pv <- project(v, "EPSG:32610")
 mapview(pv)
 crs(pv)
