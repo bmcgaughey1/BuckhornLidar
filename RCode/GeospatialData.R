@@ -8,8 +8,6 @@ library(mapview)
 
 source("Rcode/FileSystem.R")
 
-# the geopackage files Connie sent turned out to be related to the out planning
-# sites...
 # read convex hull
 vector_layers(convexHullFile)
 ch <- vect(convexHullFile)

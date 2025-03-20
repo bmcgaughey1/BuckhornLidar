@@ -47,4 +47,6 @@ source("Rcode/AdjustUCDavisMap.R")
 # compare tag labels between grid and UC Davis stem map...does not check border tree tags
 # look for Block#Errors.shp files to indicate errors...if not present, no errors detected
 # error message is also printed to console
-source("Rcode/CompareTage.R")
+#
+# I manually checked border tree tag numbers for error...all good!
+source("Rcode/CompareTags.R")

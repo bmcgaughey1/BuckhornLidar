@@ -371,8 +371,10 @@ for (blockNum in 1:4) {
   # rotation was measured in ArcPro along columns of trees. This could be improved a bit but the
   # alignment turned out pretty good.
   if (blockNum == 1) {
-    ox <- 500724.965 #- 1.8
+    ox <- 500724.965 #- 1.8    # had entire block off by 1 row...maybe not!!
     oy = 5154780.184 #- 1.8
+    #ox <- 500726.344 #- 1.8
+    #oy = 5154783.547 #- 1.8
     angle <- 19.2833
   } else if (blockNum == 2) {
     ox <- 500786.63 #- 1.8
@@ -399,7 +401,7 @@ for (blockNum in 1:4) {
   # write tree locations to shapefile
   writeVector(trees, paste0(outputFolder, "Block", blockNum, "Trees.shp"), overwrite = TRUE)
   
-  plot(trees[trees$Live,])
+  #plot(trees[trees$Live,])
   #plot(trees)
   
   # deal with block
