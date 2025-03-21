@@ -11,7 +11,9 @@ outputFolder <- paste0(dataFolder, "StemMaps/")
 lt <- vect(paste0(dataFolder, "FUSIONProcessing/trees/trees.shp"))
 
 # grid trees and lidar trees must be this close to "match"
-bufferRadius <- 1.0
+bufferRadius <- 1.8
+
+blockNum <- 2
 
 # set the block number (1-4)...loop to do all 4 blocks
 for (blockNum in 1:4) {
@@ -30,9 +32,9 @@ for (blockNum in 1:4) {
   # intersect lidar trees (points) with buffers (polygons)
   it <- intersect(lbtBuffered, lt)
   
-  
-  
-  
+  length(it)
+  plot(it)
+  itdf <- as.data.frame((it))
   
   
   

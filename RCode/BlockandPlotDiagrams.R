@@ -406,8 +406,8 @@ for (blockNum in 1:4) {
   
   # deal with block
   # generate block rectangle...local coordinate system
-  block = data.frame(X = c(-spacing / 2, columns * spacing + spacing / 2, columns * spacing + spacing / 2, -spacing / 2, -spacing / 2),
-                     Y = c(-spacing / 2, -spacing / 2, rows * spacing + spacing  / 2, rows * spacing + spacing / 2, -spacing / 2))
+  block = data.frame(X = c(-spacing / 2, (columns - 1) * spacing + spacing / 2, (columns - 1) * spacing + spacing / 2, -spacing / 2, -spacing / 2),
+                     Y = c(-spacing / 2, -spacing / 2, (rows - 1) * spacing + spacing  / 2, (rows - 1) * spacing + spacing / 2, -spacing / 2))
   
   blkpts <- vect(block, geom=c("X", "Y"), crs = "EPSG:32610", keepgeom = TRUE)
   #blk <- vect(geom(blkpts), type = "polygons", crs = "EPSG:32610")
