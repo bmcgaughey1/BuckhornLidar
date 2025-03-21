@@ -9,5 +9,10 @@ source("Rcode/FileSystem.R")
 library(terra)
 library(fusionwrapr)
 
-d <- rast(DTMFile)
-writeDTM(d, FUSION_DTMFile, xyunits = "m", zunits = "m", coordsys = 2, zone = 10, horizdatum = 2, vertdatum = 2)
+# check for converted file
+if (file.exists(FUSION_DTMFile) == FALSE) {
+  d <- rast(DTMFile)
+  writeDTM(d, FUSION_DTMFile, xyunits = "m", zunits = "m", coordsys = 2, zone = 10, horizdatum = 2, vertdatum = 2)
+} else {
+  cat("Converted file already exists!!\n")
+}

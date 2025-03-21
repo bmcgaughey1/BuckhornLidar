@@ -5,7 +5,7 @@ library(terra)
 source("Rcode/FileSystem.R")
 
 # set up some things...
-outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
+outputFolder <- paste0(dataFolder, "StemMaps/")
 
 # planting patterns for blocks are a 12 column by 26 row grid
 # spacing was 3.6m

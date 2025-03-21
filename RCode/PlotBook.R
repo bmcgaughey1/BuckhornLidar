@@ -6,7 +6,7 @@ library(terra)
 library(fusionwrapr)
 
 # set checkForFiles to FALSE to force creation of image book
-checkForFiles <- FALSE
+checkForFiles <- TRUE
 doHillshade <- TRUE
 
 bookFileName <- paste0(dataFolder, "Buckhorn_Imagery.pdf")

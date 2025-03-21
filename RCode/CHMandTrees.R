@@ -17,7 +17,7 @@ library(fusionwrapr)
 outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
 
 # flag to control building of CSM, CHM, and tree objects
-buildFUSIONProducts <- FALSE
+buildFUSIONProducts <- TRUE
 
 if (buildFUSIONProducts) {
   # Do FUSION processing ----------------------------------------------------
@@ -128,6 +128,9 @@ if (buildFUSIONProducts) {
   # run the batch file
   runCommandFile()
 }
+
+# reset FUSION command environment so commands are run immediately
+setGlobalCommandOptions(runCmd = TRUE)
 
 # Sample heights for highpoints from unsmoothed CHM and tree clips ------------
 

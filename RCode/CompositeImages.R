@@ -48,7 +48,7 @@ stretch16 <- function (
 # Remote Sensing. 11. 10.1109/JSTARS.2018.2813281.  
 alpha <- 0.4
 
-checkForFiles <- FALSE
+checkForFiles <- TRUE
 
 # options for GDAL TIFF writer
 gdalOptions <- c("TFW=YES", "PHOTOMETRIC=RGB")
@@ -63,7 +63,7 @@ if (bitsPerPixel == 8)
 # check to see if we already have the image set...only checks for a single file 
 # and assumes other files are there (or not) if the one is there (or not)
 if (checkForFiles) {
-  if (file.exists(paste0(imageFileBasename, bandNames[1], ".tif")))
+  if (file.exists(paste0(imageDataFolder, imageFileBasename, bandNames[1], ".tif")))
     stop("Images already exist!!")
 }
   
@@ -95,13 +95,13 @@ imageFile <- paste0(imageDataFolder, imageFileBasename, bandNames[7], ".tif")
 lwir <- rast(imageFile)
 if (bitsPerPixel == 8) lwir <- stretchq(lwir) else lwir <- stretch16(lwir)
 
-# use terra::shift to align imagery with lidar data. amoutn of shift determined by manual
+# use terra::shift to align imagery with lidar data. amount of shift determined by manual
 # measurement in ArcPro for 4 corners of study area. this could be refined!!
 #
 # ****** Turns out the problem causing the apparent misalignment was an incorrect
-#        assumption regarding CRS for data
-dx <- -1.115
-dy <- 0.75
+#        assumption regarding CRS for data...seet dx and xy to 0
+#dx <- -1.115
+#dy <- 0.75
 dx <- 0
 dy <- 0
 if (dx != 0 && dy != 0) {

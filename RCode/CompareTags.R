@@ -8,7 +8,7 @@ library(terra)
 source("Rcode/FileSystem.R")
 
 # set up some things for FUSION commands
-outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
+outputFolder <- paste0(dataFolder, "StemMaps/")
 
 # grid trees and UCD trees must be this close to "match"
 bufferRadius <- 0.75

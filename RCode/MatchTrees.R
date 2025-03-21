@@ -5,10 +5,10 @@ source("Rcode/FileSystem.R")
 library(terra)
 
 # set up some things for FUSION commands
-outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
+outputFolder <- paste0(dataFolder, "StemMaps/")
 
 # load lidar-derived trees
-lt <- vect(paste0(outputFolder, "trees/trees.shp"))
+lt <- vect(paste0(dataFolder, "FUSIONProcessing/trees/trees.shp"))
 
 # grid trees and lidar trees must be this close to "match"
 bufferRadius <- 1.0
