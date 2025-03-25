@@ -35,7 +35,7 @@ source("Rcode/PlotBook.R")
 # and not the plot corner (1.8 m west and south of LL corner tree)
 #
 # only need to run once...maybe not at all
-# Jacob confirmed that lat-lon in Connies file should be EPSG:6318
+# Jacob confirmed that lat-lon in Connie's file should be EPSG:6318
 #source("Rcode/GeospatialData.R")
 
 # build stem maps...brute force with hard-coded tree info

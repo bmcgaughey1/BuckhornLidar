@@ -37,6 +37,12 @@ for (blockNum in 1:4) {
   # intersect lidar trees with buffers
   it <- intersect(lbtBuffered, lt)
   
+  # get list of Tag values for duplicates
+  dupTags <- it$Tag[duplicated(it$Tag)]
+  
+  # remove all rows that are duplicated...OK to ignore for the adjustment
+  it <- it[!it$Tag %in% dupTags,]
+
   # compute mean distance in X and Y
   it$diffX <- it$X - it$HighPtX
   it$diffY <- it$Y - it$HighPtY

@@ -17,7 +17,11 @@ library(fusionwrapr)
 outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
 
 # flag to control building of CSM, CHM, and tree objects
+# also controls production of tree segments and point cloud metrics for segments
 buildFUSIONProducts <- TRUE
+
+CHMResolution <- 0.25
+runSegmentMetrics <- TRUE
 
 if (buildFUSIONProducts) {
   # Do FUSION processing ----------------------------------------------------
@@ -50,7 +54,7 @@ if (buildFUSIONProducts) {
   # Resolution and smoothing with the canopy surfaces have a major effect on the segmentation
   # behavior.
   CanopyModel(paste0(outputFolder, "CSM/CSM.dtm")
-              , 0.5
+              , CHMResolution
               , "M"
               , "M"
               , 1
@@ -64,7 +68,7 @@ if (buildFUSIONProducts) {
   )
   
   CanopyModel(paste0(outputFolder, "CHM/CHM.dtm")
-              , 0.5
+              , CHMResolution
               , "M"
               , "M"
               , 1
@@ -82,7 +86,7 @@ if (buildFUSIONProducts) {
   # after segmentation. Smoothing reduces the height of the CHM slightly but smoothing
   # is necessary to prevent oversegmentation.
   CanopyModel(paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm")
-              , 0.5
+              , CHMResolution
               , "M"
               , "M"
               , 1
@@ -95,33 +99,35 @@ if (buildFUSIONProducts) {
               , class = "~7,18"
   )
   
-  # run segmentation to produce normalized TAO clips
-  # omit the ground points (class 2)
-  # remove the points = ... line to just produce highpoints and crown polygons
-  TreeSeg(paste0(outputFolder, "CHM/CHM.dtm")
-          , 2
-          , paste0(outputFolder, "Trees/trees_normalized.csv")
-          , shape = TRUE
-          , ptheight = TRUE
-          , points = paste0(lidarDataFolder, "*.laz")
-          , class = "~2"
-          , clipfolder = paste0(outputFolder, "Trees/TAOpts_normalized")
-          , ground = FUSION_DTMFile
-          , comment = "Create normalized TAO point clips"
-          , projection = prjFile
-  )
-  
-  # compute limited set of metrics for both sets of TAOs
-  # remove highpoint = TRUE and uncomment minht = and above = lines to produce full set of metrics
-  # use rid=TRUE to parse tree number from end of point file name
-  CloudMetrics(paste0(outputFolder, "/Trees/TAOpts_normalized/*.lda")
-               , paste0(outputFolder, "/TAO_normalized_metrics.csv")
-               , new = TRUE
-               , highpoint = TRUE
-               #, minht = 2.0
-               #, above = 2.0
-               , rid = TRUE
-  )
+  if (runSegmentMetrics) {
+    # run segmentation to produce normalized TAO clips
+    # omit the ground points (class 2)
+    # remove the points = ... line to just produce highpoints and crown polygons
+    TreeSeg(paste0(outputFolder, "CHM/CHM.dtm")
+            , 2
+            , paste0(outputFolder, "Trees/trees_normalized.csv")
+            , shape = TRUE
+            , ptheight = TRUE
+            , points = paste0(lidarDataFolder, "*.laz")
+            , class = "~2"
+            , clipfolder = paste0(outputFolder, "Trees/TAOpts_normalized")
+            , ground = FUSION_DTMFile
+            , comment = "Create normalized TAO point clips"
+            , projection = prjFile
+    )
+    
+    # compute limited set of metrics for both sets of TAOs
+    # remove highpoint = TRUE and uncomment minht = and above = lines to produce full set of metrics
+    # use rid=TRUE to parse tree number from end of point file name
+    CloudMetrics(paste0(outputFolder, "/Trees/TAOpts_normalized/*.lda")
+                 , paste0(outputFolder, "/TAO_normalized_metrics.csv")
+                 , new = TRUE
+                 , highpoint = TRUE
+                 #, minht = 2.0
+                 #, above = 2.0
+                 , rid = TRUE
+    )
+  }
   
   useLogFile("")
   
@@ -140,49 +146,51 @@ setGlobalCommandOptions(runCmd = TRUE)
 #
 # An alternative approach that would produce the most accurate heights is to clip 
 # points for each tree and get the height for the highest lidar point for each tree.
-# This process is slow and requires more manipulation of the point clips.
-#
-# read shapefile for highpoints
-highPoints <- vect(paste0(outputFolder, "Trees/trees_normalized_HighPoints.shp"))
+# This process is slower and requires more manipulation of the point clips but worth it.
 
-# build data frame for ID, X, Y and "fix" the column labels
-df <- data.frame(highPoints$BasinID, highPoints$GridHighX, highPoints$GridHighY)
-colnames(df) <- c("BasinID", "X", "Y")
+if (runSegmentMetrics) {
+  # read shapefile for highpoints
+  highPoints <- vect(paste0(outputFolder, "Trees/trees_normalized_HighPoints.shp"))
+  
+  # build data frame for ID, X, Y and "fix" the column labels
+  df <- data.frame(highPoints$BasinID, highPoints$GridHighX, highPoints$GridHighY)
+  colnames(df) <- c("BasinID", "X", "Y")
+  
+  # get surface values for highpoint XY locations
+  dfns <- GetSurfaceValues(df, "X", "Y", "UnsmthHt", paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"))
+  
+  # read point cloud metrics
+  metrics <- read.csv(paste0(outputFolder, "/TAO_normalized_metrics.csv"), stringsAsFactors = FALSE)
+  
+  # join point cloud highest point height to segmented trees. Join is needed because
+  # we typically don't get points for every tree object
+  dfns <- merge(dfns, metrics, by.x = "BasinID", by.y = "Identifier", all.x = TRUE)
+  
+  # add UnsmthHt to shapefile attributes
+  # add point location and height to shapefile
+  highPoints$UnsmthHt <- dfns$UnsmthHt
+  highPoints$HighPtX <- dfns$High.point.X
+  highPoints$HighPtY <- dfns$High.point.Y
+  highPoints$HighPtHt <- dfns$High.point.elevation
+  
+  # strip off original geometry (grid cell centers) and replace locations with high point XY
+  # this won't shift tree locations by much...at most the width of CHM cell (0.5m)
+  df <- as.data.frame(highPoints)
+  highPoints <- vect(df, geom = c("HighPtX", "HighPtY"), crs = crs(highPoints), keepgeom = TRUE)
+  
+  # write new shapefile for high points
+  writeVector(highPoints, paste0(outputFolder, "Trees/trees.shp"), overwrite = TRUE)
+  
+  # read shapefile for crown perimeters
+  crowns <- vect(paste0(outputFolder, "Trees/trees_normalized_Polygons.shp"))
+  crowns$UnsmthHt <- dfns$UnsmthHt
+  crowns$HighPtX <- dfns$High.point.X
+  crowns$HighPtY <- dfns$High.point.Y
+  crowns$HighPtHt <- dfns$High.point.elevation
 
-# get surface values for highpoint XY locations
-dfns <- GetSurfaceValues(df, "X", "Y", "UnsmthHt", paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"))
-
-# read point cloud metrics
-metrics <- read.csv(paste0(outputFolder, "/TAO_normalized_metrics.csv"), stringsAsFactors = FALSE)
-
-# join point cloud highest point height to segmented trees. Join is needed because
-# we typically don't get points for every tree object
-dfns <- merge(dfns, metrics, by.x = "BasinID", by.y = "Identifier", all.x = TRUE)
-
-# add UnsmthHt to shapefile attributes
-# add point location and height to shapefile
-highPoints$UnsmthHt <- dfns$UnsmthHt
-highPoints$HighPtX <- dfns$High.point.X
-highPoints$HighPtY <- dfns$High.point.Y
-highPoints$HighPtHt <- dfns$High.point.elevation
-
-# strip off original geometry (grid cell centers) and replace locations with high point XY
-# this won't shift tree locations by much...at most the width of CHM cell (0.5m)
-df <- as.data.frame(highPoints)
-highPoints <- vect(df, geom = c("HighPtX", "HighPtY"), crs = crs(highPoints), keepgeom = TRUE)
-
-# write new shapefile for high points
-writeVector(highPoints, paste0(outputFolder, "Trees/trees.shp"), overwrite = TRUE)
-
-# read shapefile for crown perimeters
-crowns <- vect(paste0(outputFolder, "Trees/trees_normalized_Polygons.shp"))
-crowns$UnsmthHt <- dfns$UnsmthHt
-crowns$HighPtX <- dfns$High.point.X
-crowns$HighPtY <- dfns$High.point.Y
-crowns$HighPtHt <- dfns$High.point.elevation
-
-# write new shapefile for crown perimeters
-writeVector(crowns, paste0(outputFolder, "Trees/crowns.shp"), overwrite = TRUE)
+  # write new shapefile for crown perimeters
+  writeVector(crowns, paste0(outputFolder, "Trees/crowns.shp"), overwrite = TRUE)
+}
 
 # Convert surface files to TIF format -------------------------------------
 
