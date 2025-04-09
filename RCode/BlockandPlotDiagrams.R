@@ -43,7 +43,7 @@ spacing <- 3.6
 
 # set the block number (1-4)...loop to do all 4 blocks
 for (blockNum in 1:4) {
-  #blockNum <- 4
+  #blockNum <- 1
 
   pts <- data.frame()
   for (row in 1:rows) {
@@ -404,8 +404,8 @@ for (blockNum in 1:4) {
   #plot(trees[trees$Live,])
   #plot(trees)
   
-  # deal with block
-  # generate block rectangle...local coordinate system
+  # create block perimeter
+  # generate block perimeter...local coordinate system
   block = data.frame(X = c(-spacing / 2, (columns - 1) * spacing + spacing / 2, (columns - 1) * spacing + spacing / 2, -spacing / 2, -spacing / 2),
                      Y = c(-spacing / 2, -spacing / 2, (rows - 1) * spacing + spacing  / 2, (rows - 1) * spacing + spacing / 2, -spacing / 2))
   
@@ -416,4 +416,41 @@ for (blockNum in 1:4) {
   blk <- shift(blk, dx = ox, dy = oy)
   blk <- spin(blk, angle, ox, oy)
   writeVector(blk, paste0(outputFolder, "Block", blockNum, "Perimeter.shp"), overwrite = TRUE)
+  
+  # create plot perimeters
+  plotCorner = data.frame(X = c(-spacing / 2, (5) * spacing + spacing / 2, (5) * spacing + spacing / 2, -spacing / 2, -spacing / 2),
+                          Y = c(-spacing / 2, -spacing / 2, (4) * spacing + spacing / 2, (4) * spacing + spacing / 2, -spacing / 2))
+  plotInterior = data.frame(X = c(-spacing / 2, (5) * spacing + spacing / 2, (5) * spacing + spacing / 2, -spacing / 2, -spacing / 2),
+                          Y = c(-spacing / 2, -spacing / 2, (3) * spacing + spacing / 2, (3) * spacing + spacing / 2, -spacing / 2))
+  p <- vect(plotCorner, geom=c("X", "Y"), crs = "EPSG:32610", keepgeom = TRUE)
+  pltCorner <- convHull(p)
+  p <- vect(plotInterior, geom=c("X", "Y"), crs = "EPSG:32610", keepgeom = TRUE)
+  pltInterior <- convHull(p)
+  plot(pltCorner)
+  plot(pltInterior)
+  # combine plots in column 1
+  col1 <- c(
+    shift(pltCorner, dx = ox, dy = oy),
+    shift(pltInterior, dx = ox, dy = oy + spacing * 5),
+    shift(pltInterior, dx = ox, dy = oy + spacing * 9),
+    shift(pltInterior, dx = ox, dy = oy + spacing * 13),
+    shift(pltInterior, dx = ox, dy = oy + spacing * 17),
+    shift(pltCorner, dx = ox, dy = oy + spacing * 21)
+  )
+  col2 <- c(
+    shift(pltCorner, dx = ox + spacing * 6, dy = oy),
+    shift(pltInterior, dx = ox + spacing * 6, dy = oy + spacing * 5),
+    shift(pltInterior, dx = ox + spacing * 6, dy = oy + spacing * 9),
+    shift(pltInterior, dx = ox + spacing * 6, dy = oy + spacing * 13),
+    shift(pltInterior, dx = ox + spacing * 6, dy = oy + spacing * 17),
+    shift(pltCorner, dx = ox + spacing * 6, dy = oy + spacing * 21)
+  )
+  plt <- vect(c(col1, col2))
+  plt$Plot <- c(1,2,3,4,5,6,12,11,10,9,8,7) + (blockNum - 1) * 12
+  plt <- spin(plt, angle, ox, oy)
+  
+  writeVector(plt, paste0(outputFolder, "Block", blockNum, "Plots.shp"), overwrite = TRUE)
+  
+  #plot(plt, "Plot")
+  #plot(blk, add = T)
 }
