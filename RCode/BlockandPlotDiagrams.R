@@ -404,7 +404,7 @@ for (blockNum in 1:4) {
   #plot(trees[trees$Live,])
   #plot(trees)
   
-  # create block perimeter
+  # create block perimeters
   # generate block perimeter...local coordinate system
   block = data.frame(X = c(-spacing / 2, (columns - 1) * spacing + spacing / 2, (columns - 1) * spacing + spacing / 2, -spacing / 2, -spacing / 2),
                      Y = c(-spacing / 2, -spacing / 2, (rows - 1) * spacing + spacing  / 2, (rows - 1) * spacing + spacing / 2, -spacing / 2))
@@ -413,6 +413,7 @@ for (blockNum in 1:4) {
   #blk <- vect(geom(blkpts), type = "polygons", crs = "EPSG:32610")
   blk <- convHull(blkpts)
   
+  # shift to correct location and rotate
   blk <- shift(blk, dx = ox, dy = oy)
   blk <- spin(blk, angle, ox, oy)
   writeVector(blk, paste0(outputFolder, "Block", blockNum, "Perimeter.shp"), overwrite = TRUE)
@@ -426,9 +427,11 @@ for (blockNum in 1:4) {
   pltCorner <- convHull(p)
   p <- vect(plotInterior, geom=c("X", "Y"), crs = "EPSG:32610", keepgeom = TRUE)
   pltInterior <- convHull(p)
-  plot(pltCorner)
-  plot(pltInterior)
-  # combine plots in column 1
+  
+  #plot(pltCorner)
+  #plot(pltInterior)
+  
+  # combine plots in 2 columns
   col1 <- c(
     shift(pltCorner, dx = ox, dy = oy),
     shift(pltInterior, dx = ox, dy = oy + spacing * 5),
@@ -445,8 +448,11 @@ for (blockNum in 1:4) {
     shift(pltInterior, dx = ox + spacing * 6, dy = oy + spacing * 17),
     shift(pltCorner, dx = ox + spacing * 6, dy = oy + spacing * 21)
   )
+  # build list of plots for block and add labels
   plt <- vect(c(col1, col2))
   plt$Plot <- c(1,2,3,4,5,6,12,11,10,9,8,7) + (blockNum - 1) * 12
+  
+  # rotate
   plt <- spin(plt, angle, ox, oy)
   
   writeVector(plt, paste0(outputFolder, "Block", blockNum, "Plots.shp"), overwrite = TRUE)
