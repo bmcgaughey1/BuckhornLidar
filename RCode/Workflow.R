@@ -59,3 +59,6 @@ source("Rcode/CompareTags.R")
 # a tree was cut or died. the matching code checks for both conditions and reports
 # discrepencies
 source("Rcode/MatchTrees.R")
+
+# use file of recent measurements to add heights
+source("Rcode/AddMeasurements.R")
