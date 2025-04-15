@@ -1,6 +1,7 @@
 # code to add new measurements to tree records...not for all trees
 #
 source("Rcode/FileSystem.R")
+library(terra)
 
 # set up some things for FUSION commands
 outputFolder <- paste0(dataFolder, "StemMaps/")
@@ -22,3 +23,20 @@ newMeasurementsExtra <- read.csv("SupportingData/BuckhornEOYHeightsSpring25.csv"
                                              "character","integer","integer","integer","integer","integer","character")
                             , skip = 255
 )
+
+# set the block number (1-4)...loop to do all 4 blocks
+blockNum <- 1
+for (blockNum in 1:4) {
+  # read matched trees...no measurements
+  mt <- vect(paste0(outputFolder, "MatchedBlock", blockNum, "Trees.shp"))
+  
+  # read shifted UCDavis trees...have older measurements
+  uct <- vect(paste0(outputFolder, "ShiftedUCD", blockNum, "Trees.shp"))
+  
+  # join UCDavis measurements to matched lidar trees
+  nt <- merge(mt, uct, by.x = "Tag", by.y = "TAG")
+  
+  # need to deal with the multiple stems in new measurements...
+  
+  @@@@@
+}

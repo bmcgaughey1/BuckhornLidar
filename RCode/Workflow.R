@@ -18,6 +18,7 @@ source("Rcode/ConvertDTM.R")
 
 # Build CSM, CHM and tree objects
 # check in file for the setting of buildFUSIONProducts...this controls creation of CHMs
+# this is the code that uses the lidar point cloud
 source("Rcode/CHMandTrees.R")
 
 # process image bands

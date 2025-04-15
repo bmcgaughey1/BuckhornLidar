@@ -8,7 +8,7 @@ source("Rcode/FileSystem.R")
 # set up some things for FUSION commands
 outputFolder <- paste0(dataFolder, "StemMaps/")
 
-# read stem plots
+# read stem plots...from UC-Davis
 allTrees <- vect(stemPlotFile)
 
 # add projected XY as columns
@@ -35,7 +35,9 @@ UCDTrees <- list(b1Trees, b2Trees, b3Trees, b4Trees)
 # for block 4, tag 8735 is SW tree
 SWtags <- c("7709", "3520", "5147", "8735")
 
-# rotations...measure after first run through this code with no rotation
+# rotations...measured in ArcPro after first run through this code with no rotation
+# by measuring the angle between a column in the UCDavis stem map and the corresponding
+# column in the new stem maps
 doRotation <- TRUE
 angles <- c(2.15, 0.88, 0.43, 0.0)
 
