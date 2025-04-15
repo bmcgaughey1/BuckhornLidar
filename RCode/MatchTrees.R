@@ -13,7 +13,7 @@ lt <- vect(paste0(dataFolder, "FUSIONProcessing/trees/trees.shp"))
 # grid trees and lidar trees must be this close to "match"
 bufferRadius <- c(0.5, 0.75, 1.0, 1.25)
 
-blockNum <- 2
+#blockNum <- 2
 
 # set the block number (1-4)...loop to do all 4 blocks
 for (blockNum in 1:4) {
