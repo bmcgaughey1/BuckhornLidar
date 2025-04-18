@@ -13,6 +13,17 @@
 # all trees...no dead or cut trees). I also had to adjust the alignment of the UC
 # Davis points to match my new stem maps.
 #
+# The simplest way to get tree heights is to take the perfect grid of trees and 
+# get the unsmoothed CHM height using a small neighborhood around the tree locations.
+# This works for single leaders/tops but not trees with multiple tops.
+#
+# The approach I originally started was to match lidar-derived tree tops to the
+# perfect grid of trees (after adjusting the grid to get the best match with the
+# lidar-derived trees). This is a good approach but won't necessarily get matches 
+# for all grid trees as there are more lidar-derived trees than grid trees due to 
+# oversegmentation.
+#
+
 # convert ground model to FUSION format
 source("Rcode/ConvertDTM.R")
 

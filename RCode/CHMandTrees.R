@@ -154,10 +154,10 @@ if (runSegmentMetrics) {
   
   # build data frame for ID, X, Y and "fix" the column labels
   df <- data.frame(highPoints$BasinID, highPoints$GridHighX, highPoints$GridHighY)
-  colnames(df) <- c("BasinID", "X", "Y")
+  colnames(df) <- c("BasinID", "GridHighX", "GridHighY")
   
   # get surface values for highpoint XY locations
-  dfns <- GetSurfaceValues(df, "X", "Y", "UnsmthHt", paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"))
+  dfns <- GetSurfaceValues(df, "GridHighX", "GridHighY", "UnsmthHt", paste0(outputFolder, "CHM/CHM_NOT_smoothed.dtm"))
   
   # read point cloud metrics
   metrics <- read.csv(paste0(outputFolder, "/TAO_normalized_metrics.csv"), stringsAsFactors = FALSE)
