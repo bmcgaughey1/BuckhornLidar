@@ -7,6 +7,9 @@ source("Rcode/FileSystem.R")
 # set up some things...
 outputFolder <- paste0(dataFolder, "StemMaps/")
 
+# make sure output folder exists
+if (!dir.exists(outputFolder)) {dir.create(outputFolder)}
+
 # planting patterns for blocks are a 12 column by 26 row grid
 # spacing was 3.6m
 # each plot had 5 "extra" trees but most were cut several years ago

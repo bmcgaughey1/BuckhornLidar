@@ -15,6 +15,9 @@ source("Rcode/FileSystem.R")
 # set up some things...
 outputFolder <- paste0(dataFolder, "StemMaps/")
 
+# make sure output folder exists
+if (!dir.exists(outputFolder)) {dir.create(outputFolder)}
+
 # load lidar-derived trees
 lt <- vect(paste0(dataFolder, "FUSIONProcessing/trees/trees.shp"))
 

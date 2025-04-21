@@ -16,6 +16,9 @@ library(fusionwrapr)
 # set up some things for FUSION commands
 outputFolder <- paste0(dataFolder, "FUSIONProcessing/")
 
+# make sure output folder exists
+if (!dir.exists(outputFolder)) {dir.create(outputFolder)}
+
 # flag to control building of CSM, CHM, and tree objects
 # also controls production of tree segments and point cloud metrics for segments
 buildFUSIONProducts <- TRUE

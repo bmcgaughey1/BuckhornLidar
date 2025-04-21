@@ -72,5 +72,6 @@ source("Rcode/CompareTags.R")
 # discrepencies
 source("Rcode/MatchTrees.R")
 
-# use file of recent measurements to add heights
+# use file of recent measurements to add heights and produce final CSV files
+# these files only have trees with recent measurements that were matched to lidar trees
 source("Rcode/AddMeasurements.R")
