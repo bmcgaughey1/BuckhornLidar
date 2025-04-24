@@ -11,7 +11,7 @@ library(fusionwrapr)
 # UAS-lidar can produce very high resolution CHMs. However, this results
 # in too much detail and tree segmentation suffers. From precious projects, I have
 # found that 0.5m resolution with a 3by3 moving window average filter works
-# well and produces useable tree objects
+# well and produces usable tree objects
 
 # set up some things for FUSION commands
 outputFolder <- paste0(dataFolder, "FUSIONProcessing/")

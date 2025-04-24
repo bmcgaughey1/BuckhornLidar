@@ -78,7 +78,7 @@ for (blockNum in 1:4) {
     )
     
     # write merged data
-    write.csv(mt_uct24df, paste0(outputFolder, "FINAL_Merged_Block", blockNum, ".csv"), row.names = F)
+    write.csv(mt_uct24df, paste0(outputFolder, "FINAL_Merged_Block", blockNum, "_Trees.csv"), row.names = F)
     
     # need to clean up the columns in the vector files
     #names(mt_uct24)
