@@ -460,6 +460,31 @@ for (blockNum in 1:4) {
   
   writeVector(plt, paste0(outputFolder, "Block", blockNum, "Plots.shp"), overwrite = TRUE)
   
+  # merge measurement data into full tree grid
+  meas <- read.csv("SupportingData/Buckhorn21_multipletops.csv", stringsAsFactors = FALSE)
+
+  # split a and b stems...need to get rid of extra spaces in STEM
+  measA <- meas[trimws(meas$STEM, "b") == "" | trimws(meas$STEM, "b") == "a", ]
+  measB <- meas[trimws(meas$STEM, "b") == "b", ]
+  
+  # get trees in block
+  # for testing trees <- vect(paste0(outputFolder, "Block", blockNum, "Trees.shp"))
+  plts <- unique(trees$Plot)
+  measAinPlot <- measA[measA$PLOT %in% plts, ]
+  measBinPlot <- measB[measB$PLOT %in% plts, ]
+  
+  # merge "a" and "b" trees in trees...STEM="" are include in "a" tree list
+  treesa <- merge(trees, measAinPlot, by.x = "Tag", by.y = "TAG")
+  btrees <- trees[trees$Tag %in% measBinPlot$TAG, ]
+  treesb <- merge(btrees, measBinPlot, by.x = "Tag", by.y = "TAG")
+  treesall <- vect(c(treesa, treesb))
+  
+  # drop extra plot, row, and col columns
+  treesall <- treesall[, -c(13, 14, 15)]
+  
+  # write tree locations to shapefile...overwrites earlier file (line 405)
+  writeVector(treesall, paste0(outputFolder, "Block", blockNum, "Trees.shp"), overwrite = TRUE)
+  
   #plot(plt, "Plot")
   #plot(blk, add = T)
 }

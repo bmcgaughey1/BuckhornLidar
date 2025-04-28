@@ -35,18 +35,18 @@ for (blockNum in 1:4) {
   mt <- vect(paste0(inputFolder, "MatchedBlock", blockNum, "Trees.shp"))
   
   # read shifted UCDavis trees...have older measurements
-  uct <- vect(paste0(inputFolder, "ShiftedUCD", blockNum, "Trees.shp"))
+  #uct <- vect(paste0(inputFolder, "ShiftedUCD", blockNum, "Trees.shp"))
   
   # join UCDavis measurements to matched lidar trees...
   # all.x = TRUE keeps rows in mt that aren't in uct
   #
   # merging drops columns used for merge in y
-  mt_uct <- merge(mt, uct, by.x = "Tag", by.y = "TAG", all.x = TRUE)
-  mt_uctdf <- as.data.frame(mt_uct)
+  #mt_uct <- merge(mt, uct, by.x = "Tag", by.y = "TAG", all.x = TRUE)
+  #mt_uctdf <- as.data.frame(mt_uct)
   #colnames(mt_uctdf)
 
   # mt_uct24 has the matched trees with 2024 measurements...no others
-  mt_uct24 <- merge(mt_uct, newMeasurements, by.x = c("Tag"), by.y = c("TAG"), all.x = FALSE)
+  mt_uct24 <- merge(mt, newMeasurements, by.x = c("Tag"), by.y = c("TAG"), all.x = TRUE)
   mt_uct24df <- as.data.frame(mt_uct24)
   #colnames(mt_uct24df)
   
@@ -55,27 +55,28 @@ for (blockNum in 1:4) {
   # not all blocks have stems with new measurements
   if (nrow(mt_uct24)) {
     # clean up columns...brute force
-    mt_uct24df <- mt_uct24df[, c(25, 1:16, 19:24, 29:46, 54:59)]
+    # mt_uct24df <- mt_uct24df[, c(25, 1:16, 19:24, 29:46, 54:59)]
+    mt_uct24df <- mt_uct24df[, c(12, 2, 3, 1, 13, 4:11, 14:33, 36:41, 47, 49:52)]
     #colnames(mt_uct24df)
     colnames(mt_uct24df) <- c(
-      "SITE", "Tag", "Block", "Plot", "Row", "Col", "Live", "Border", "Filler",
-      "Extra", "X", "Y", "BasinID", "GridHighX", "GridHighY", "GridCells", "GridMaxHt",
-      "UnsmthHt", "HighPtX", "HighPtY", "HighPtHt", "dist", "confidence", "STEM", "PBD",
-      "BD21", "PDBH", "DBH21", "PHT", "HT21", "FL21", "PCWA", "CWA21", "PCWB",
-      "CWB21", "PCODE", "CODE21", "PCOMM", "COMM21", "X_Long", "Y_Lat", "DBH24", "HT21",
+      "SITE", "Block", "Plot", "Tag", "STEM", "Row", "Col", "Live", "Border", "Filler",
+      "Extra", "X", "Y", "PBD","BD21", "PDBH", "DBH21", "PHT", "HT21", "FL21", "PCWA", "CWA21", "PCWB",
+      "CWB21", "PCODE", "CODE21", "PCOMM", "COMM21", 
+      "BasinID", "GridHighX", "GridHighY", "GridCells", "GridMaxHt",
+      "UnsmthHt", "HighPtX", "HighPtY", "HighPtHt", "dist", "confidence", "DBH24", 
       "HT23", "HT24", "HTLC24", "COMMENT"
     )
     
-    # clean up columns in full match dataset...should have done this before second merge
-    mt_uctdf <- mt_uctdf[, c(25, 1:16, 19:24, 29:46)]
-    #colnames(mt_uctdf)
-    colnames(mt_uctdf) <- c(
-      "SITE", "Tag", "Block", "Plot", "Row", "Col", "Live", "Border", "Filler",
-      "Extra", "X", "Y", "BasinID", "GridHighX", "GridHighY", "GridCells", "GridMaxHt",
-      "UnsmthHt", "HighPtX", "HighPtY", "HighPtHt", "dist", "confidence", "STEM", "PBD",
-      "BD21", "PDBH", "DBH21", "PHT", "HT21", "FL21", "PCWA", "CWA21", "PCWB",
-      "CWB21", "PCODE", "CODE21", "PCOMM", "COMM21", "X_Long", "Y_Lat"
-    )
+    # # clean up columns in full match dataset...should have done this before second merge
+    # mt_uctdf <- mt_uctdf[, c(25, 1:16, 19:24, 29:46)]
+    # #colnames(mt_uctdf)
+    # colnames(mt_uctdf) <- c(
+    #   "SITE", "Tag", "Block", "Plot", "Row", "Col", "BD21", "PDBH", "DBH21", "PHT", "HT21", "FL21", "PCWA", "CWA21", "PCWB","Live", "Border", "Filler",
+    #   "Extra", "X", "Y", "BasinID", "GridHighX", "GridHighY", "GridCells", "GridMaxHt",
+    #   "UnsmthHt", "HighPtX", "HighPtY", "HighPtHt", "dist", "confidence", "STEM", "PBD",
+    #   
+    #   "CWB21", "PCODE", "CODE21", "PCOMM", "COMM21", "X_Long", "Y_Lat"
+    # )
     
     # write merged data
     write.csv(mt_uct24df, paste0(outputFolder, "FINAL_Merged_Block", blockNum, "_Trees.csv"), row.names = F)
@@ -83,16 +84,17 @@ for (blockNum in 1:4) {
     # need to clean up the columns in the vector files
     #names(mt_uct24)
     #names(mt_uct)
-    mt_uct24 <- mt_uct24[, c(25, 1:16, 19:24, 29:46, 54:59)]
+    mt_uct24 <- mt_uct24[, c(12, 2, 3, 1, 13, 4:11, 14:33, 36:41, 47, 49:52)]
+    #mt_uct24 <- mt_uct24[, c(25, 1:16, 19:24, 29:46, 54:59)]
     names(mt_uct24) <- c(
-      "SITE", "Tag", "Block", "Plot", "Row", "Col", "Live", "Border", "Filler",
-      "Extra", "X", "Y", "BasinID", "GridHighX", "GridHighY", "GridCells", "GridMxHt_m",
-      "UnsmthHt_m", "HighPtX", "HighPtY", "HighPtHt_m", "dist_m", "confidence", "STEM", "PBD",
-      "BD21", "PDBH_cm", "DBH21_cm", "PHT_cm", "HT21_m", "FL21", "PCWA", "CWA21", "PCWB",
-      "CWB21", "PCODE", "CODE21", "PCOMM", "COMM21", "X_Long", "Y_Lat", "DBH24_cm", "HT21_cm",
-      "HT23_cm", "HT24_cm", "HTLC24_cm", "COMMENT"
+      "SITE", "Block", "Plot", "Tag", "STEM", "Row", "Col", "Live", "Border", "Filler",
+      "Extra", "X", "Y", "PBD","BD21", "PDBH", "DBH21", "PHT", "HT21", "FL21", "PCWA", "CWA21", "PCWB",
+      "CWB21", "PCODE", "CODE21", "PCOMM", "COMM21", 
+      "BasinID", "GridHighX", "GridHighY", "GridCells", "GridMaxHt",
+      "UnsmthHt", "HighPtX", "HighPtY", "HighPtHt", "dist", "confidence", "DBH24", 
+      "HT23", "HT24", "HTLC24", "COMMENT"
     )
-    
+
     # write merged points
     writeVector(mt_uct24, paste0(outputFolder, "FINAL_Merged_Block", blockNum, "_Trees.shp"), overwrite = T)
   }

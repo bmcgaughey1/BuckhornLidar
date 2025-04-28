@@ -25,6 +25,9 @@ for (blockNum in 1:4) {
   # load grid trees for block
   bt <- vect(paste0(outputFolder, "ShiftedBlock", blockNum, "Trees.shp"))
   
+  # create new column by combining tag and stem
+  bt$tag_stem <- paste0(bt$Tag, trimws(bt$STEM, "b"))
+  
   mt <- data.frame()
   
   for (level in 1:length(bufferRadius)) {
@@ -45,11 +48,11 @@ for (blockNum in 1:4) {
     dupTags <- it$Tag[duplicated(it$Tag)]
     
     # keep closest tree
-    it <- sort(it, c("Tag", "dist"))
+    it <- sort(it, c("tag_stem", "dist"))
     
     # remove all rows that are duplicated...because the list is sorted on distance,
     # the closest matching point will be kept
-    it <- it[!duplicated(it$Tag), ]
+    it <- it[!duplicated(it$tag_stem), ]
   
     # mark these trees with confidence level...related to buffer size used for intersection
     it$confidenceLevel <- level
@@ -64,6 +67,8 @@ for (blockNum in 1:4) {
     bt <- bt[!bt$Tag %in% mt$Tag, ]
   }  
 
+  # drop tag_stem column
+  mt <- mt[, -c(29)]
   writeVector(mt, paste0(outputFolder, "MatchedBlock", blockNum, "Trees.shp"), overwrite = TRUE)
   
   # re-read stem map
