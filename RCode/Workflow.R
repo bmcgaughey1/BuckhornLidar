@@ -87,7 +87,7 @@ source("Rcode/AdjustUCDavisMap.R")
 #
 # the point clipping to get the highest point close to each tree uses indexed LAS
 # files created by FUSION. This DRAMATICALLY speeds up the clipping process. Original
-# code with highPointMethod = 2 takes 5-6 hours for all data. New method using the 
+# code with highPointMethod = 1 takes 5-6 hours for all data. New method using the 
 # indexed files and doing the clipping all-at-once instead of tree-by-tree takes
 # 3-4 minutes.
 source("Rcode/SimpleMeasurements.R")
