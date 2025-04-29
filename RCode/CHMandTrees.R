@@ -21,10 +21,10 @@ if (!dir.exists(outputFolder)) {dir.create(outputFolder)}
 
 # flag to control building of CSM, CHM, and tree objects
 # also controls production of tree segments and point cloud metrics for segments
-buildFUSIONProducts <- TRUE
+buildFUSIONProducts <- F
 
 CHMResolution <- 0.25
-runSegmentMetrics <- TRUE
+runSegmentMetrics <- F
 
 if (buildFUSIONProducts) {
   # Do FUSION processing ----------------------------------------------------

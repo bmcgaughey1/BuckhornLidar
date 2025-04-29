@@ -26,14 +26,17 @@ if (!dir.exists(outputFolder)) {dir.create(outputFolder)}
 # set the search radius for the high point closest to each grid tree
 searchRadius <- 0.5
 
-# flag to control highpoint extraction...this is slow (5-6 hours)
-doHighPoints <- FALSE
+# flag to control highpoint extraction...this is slow but not too bad with method
+# set to 2
+doHighPoints <- TRUE
+#highPointMethod <- 1  # 1: clip separate circles, 2: clip all circles in one call
+highPointMethod <- 2
 
 # flag to control use of shifted grid trees
 useShiftedTrees <- TRUE
 
 # set the block number (1-4)...loop to do all 4 blocks
-#blockNum <- 1
+#blockNum <- 2
 for (blockNum in 1:4) {
   CHM <- paste0(dataFolder, "FUSIONProcessing/", "CHM/CHM.dtm")
   roughCHM <- paste0(dataFolder, "FUSIONProcessing/", "CHM/CHM_NOT_smoothed.dtm")
@@ -61,26 +64,54 @@ for (blockNum in 1:4) {
   # step through the trees, clip a small sample, and get the highest point in the
   # sample area
   if (doHighPoints) {
-    bt$HighPtHt <- 0
-    #tree <- 1
-    for (tree in 1:nrow(bt)) {
-      # clip small area
-      ClipPlot(paste0(dataFolder, "LiDAR/*.laz"), paste0(dataFolder, "Temp.las"), 
-               bt$X[tree], bt$Y[tree], searchRadius,
+    if (highPointMethod == 1) {
+      bt$HighPtHt <- 0
+      
+      #tree <- 1
+      for (tree in 1:nrow(bt)) {
+        # clip small area
+        ClipPlot(paste0(dataFolder, "LiDAR/*.laz"), paste0(dataFolder, "Temp.las"), 
+                 bt$X[tree], bt$Y[tree], searchRadius,
+                 class = "~7,9,18",
+                 height = TRUE,
+                 ground = paste0(dataFolder, "ground/buckhorn2.dtm"))
+        
+        # compute limited set of metrics and get height max
+        CloudMetrics(paste0(dataFolder, "Temp.las"), paste0(dataFolder, "Temp.csv"), highpoint = TRUE, new = TRUE)
+        
+        # read metrics
+        t <- read.csv(paste0(dataFolder, "Temp.csv"), stringsAsFactors = F)
+        bt$HighPtHt[tree] <- t$High.point.elevation
+      }
+      
+      unlink(paste0(dataFolder, "Temp.las"))
+      unlink(paste0(dataFolder, "Temp.csv"))
+    } else {
+      # write sample file
+      #df <- data.frame(file = paste0(dataFolder, bt$Tag, ".las"), bt$X - searchRadius, bt$Y - searchRadius, bt$X + searchRadius, bt$Y + searchRadius)
+      df <- data.frame(file = paste0(dataFolder, bt$Tag, trimws(bt$STEM, "b"), ".las"), bt$X - searchRadius, bt$Y - searchRadius, bt$X + searchRadius, bt$Y + searchRadius)
+      write.table(df, paste0(dataFolder, "samples.txt"), quote = FALSE, row.names = FALSE, col.names = FALSE)
+      
+      # clip using indexed LAS files...MUCH FASTER than using LAZ files without index files
+      ClipData(paste0(dataFolder, "LiDAR/LAS/*.las"), paste0(dataFolder, "samples.txt"), 
+               minx = "", miny = "", maxx = "", maxy = "",
                class = "~7,9,18",
                height = TRUE,
-               ground = paste0(dataFolder, "ground/buckhorn2.dtm"))
+               shape = 1,
+               zero = TRUE,
+               ground = paste0(dataFolder, "ground/buckhorn2.dtm"))      
       
-      # compute limited set of metrics and get height max
-      CloudMetrics(paste0(dataFolder, "Temp.las"), paste0(dataFolder, "Temp.csv"), highpoint = TRUE, new = TRUE)
+      # compute limited set of metrics
+      CloudMetrics(paste0(dataFolder, "*.las"), paste0(dataFolder, "Temp.csv"), highpoint = TRUE, new = TRUE)
       
       # read metrics
       t <- read.csv(paste0(dataFolder, "Temp.csv"), stringsAsFactors = F)
-      bt$HighPtHt[tree] <- t$High.point.elevation
-    }
+      bt$HighPtHt <- t$High.point.elevation
     
-    unlink(paste0(dataFolder, "Temp.las"))
-    unlink(paste0(dataFolder, "Temp.csv"))
+      # delete clips and sample file  
+      unlink(df$file)
+      unlink(paste0(dataFolder, "samples.txt"))
+    }
   }
   
   # write new trees

@@ -1,5 +1,9 @@
 # code to add new measurements to tree records...not for all trees
 #
+# This code originally merged the measurements in the UCDavis stem maps. I changed
+# this after Connie sent the spreadsheet with all measurements because the measurements
+# are now merged into my new stem maps in BlockandPlotDiagrams.R
+#
 source("Rcode/FileSystem.R")
 library(terra)
 

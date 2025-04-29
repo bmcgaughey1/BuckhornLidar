@@ -68,40 +68,28 @@ source("Rcode/RefineAlignment.R")
 # adjust UC Davis stem map to match grid
 source("Rcode/AdjustUCDavisMap.R")
 
-# !@#$%^&*()
-# merge grid trees with measurement file to get all measurements in one place
-# measurement file should be the same trees as UCD stem map but this needs checked
-# measurement file: SupportingData/Buckhorn21_multipletops.csv
-#
-# ***** problem is that the UCD trees don't have any STEM=b records
-# also noticed that the STEM column in UCD gpkg file has a leading space in some
-# records...also has one record with " d" in STEM column
-
-
-
-
-
-
-
-
-
-
-
 # compare tag labels between grid and UC Davis stem map...does not check border tree tags
 # look for Block#Errors.shp files to indicate errors...if not present, no errors detected
 # error message is also printed to console
 #
 # I manually checked border tree tag numbers for error...all good!
 #
-# This code shouldn't be needed again unless something changes in CHMandTrees.R.
+# This code shouldn't be needed again unless something changes in CHMandTrees.R or
+# BlockandPlotDiagrams.R.
 #source("Rcode/CompareTags.R")
 
 # produce "simple" measurements using the CHM and point cloud along with the 
-# adjusted tree grid. No matching with lidar-derived trees.
+# adjusted tree grid. No matching with lidar-derived trees and no multiple leaders.
 #
 # check in the code for the setting of doHighPoints and useShiftedTrees to control
 # whether point clipping to get high point heights is performed and the use of the 
-# shifted grid of trees (shifted to better match lidar-derived trees).
+# shifted grid of trees (shifted to better match lidar-derived trees). 
+#
+# the point clipping to get the highest point close to each tree uses indexed LAS
+# files created by FUSION. This DRAMATICALLY speeds up the clipping process. Original
+# code with highPointMethod = 2 takes 5-6 hours for all data. New method using the 
+# indexed files and doing the clipping all-at-once instead of tree-by-tree takes
+# 3-4 minutes.
 source("Rcode/SimpleMeasurements.R")
 
 # match lidar-derived trees to stem maps
