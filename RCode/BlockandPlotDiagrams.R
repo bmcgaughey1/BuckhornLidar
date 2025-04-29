@@ -474,7 +474,7 @@ for (blockNum in 1:4) {
   measBinPlot <- measB[measB$PLOT %in% plts, ]
   
   # merge "a" and "b" trees in trees...STEM="" are include in "a" tree list
-  treesa <- merge(trees, measAinPlot, by.x = "Tag", by.y = "TAG")
+  treesa <- merge(trees, measAinPlot, by.x = "Tag", by.y = "TAG", all.x = T)
   btrees <- trees[trees$Tag %in% measBinPlot$TAG, ]
   treesb <- merge(btrees, measBinPlot, by.x = "Tag", by.y = "TAG")
   treesall <- vect(c(treesa, treesb))

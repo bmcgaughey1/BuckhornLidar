@@ -31,9 +31,9 @@ for (blockNum in 1:4) {
   mt <- data.frame()
   
   for (level in 1:length(bufferRadius)) {
-    # only want the live grid trees...no extra trees
+    # only want the live grid trees...include live filler trees
     # ******* check this!! may want extra trees between rows if not cut
-    lbt <- subset(bt, bt$Live == TRUE & bt$Filler == FALSE & bt$Extra == FALSE)
+    lbt <- subset(bt, bt$Live == TRUE & bt$Extra == FALSE)
     
     # buffer grid trees
     lbtBuffered <- buffer(lbt, bufferRadius[level])
@@ -76,7 +76,7 @@ for (blockNum in 1:4) {
   
   # get stems NOT matched
   bt <- bt[!bt$Tag %in% mt$Tag, ]
-  bt <- subset(bt, bt$Live == TRUE & bt$Filler == FALSE & bt$Extra == FALSE)
+  bt <- subset(bt, bt$Live == TRUE & bt$Extra == FALSE)
   
   writeVector(bt, paste0(outputFolder, "NOT_MatchedBlock", blockNum, "Trees.shp"), overwrite = TRUE)
 }
